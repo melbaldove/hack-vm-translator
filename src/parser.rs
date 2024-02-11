@@ -32,33 +32,17 @@ pub enum Command<'a> {
 impl<'a> Display for Command<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Command::ArithmeticLogical(al) => {
-                write!(f, "{al}")
-            }
-            Command::Push(segment, index) => {
-                write!(f, "push {segment} {index}")
-            }
-            Command::Pop(segment, index) => {
-                write!(f, "pop {segment} {index}")
-            }
-            Command::Label(label) => {
-                write!(f, "label {label}")
-            }
-            Command::Goto(label) => {
-                write!(f, "goto {label}")
-            }
-            Command::If(label) => {
-                write!(f, "if-goto {label}")
-            }
+            Command::ArithmeticLogical(al) => write!(f, "{al}"),
+            Command::Push(segment, index) => write!(f, "push {segment} {index}"),
+            Command::Pop(segment, index) => write!(f, "pop {segment} {index}"),
+            Command::Label(label) => write!(f, "label {label}"),
+            Command::Goto(label) => write!(f, "goto {label}"),
+            Command::If(label) => write!(f, "if-goto {label}"),
             Command::Function(function_name, n_vars) => {
                 write!(f, "function {function_name} {n_vars}")
             }
-            Command::Return => {
-                write!(f, "return")
-            }
-            Command::Call(function_name, n_args) => {
-                write!(f, "call {function_name} {n_args}")
-            }
+            Command::Return => write!(f, "return"),
+            Command::Call(function_name, n_args) => write!(f, "call {function_name} {n_args}"),
         }
     }
 }
