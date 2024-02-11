@@ -24,9 +24,9 @@ pub enum Command<'a> {
     Label(&'a str),
     Goto(&'a str),
     If(&'a str),
-    Function(&'a str),
-    Return(),
-    Call(&'a str),
+    Function(&'a str, usize),
+    Return,
+    Call(&'a str, usize),
 }
 
 impl<'a> Display for Command<'a> {
@@ -41,12 +41,24 @@ impl<'a> Display for Command<'a> {
             Command::Pop(segment, index) => {
                 write!(f, "pop {segment} {index}")
             }
-            Command::Label(_) => todo!(),
-            Command::Goto(_) => todo!(),
-            Command::If(_) => todo!(),
-            Command::Function(_) => todo!(),
-            Command::Return() => todo!(),
-            Command::Call(_) => todo!(),
+            Command::Label(label) => {
+                write!(f, "label {label}")
+            }
+            Command::Goto(label) => {
+                write!(f, "goto {label}")
+            }
+            Command::If(label) => {
+                write!(f, "if-goto {label}")
+            }
+            Command::Function(function_name, n_vars) => {
+                write!(f, "function {function_name} {n_vars}")
+            }
+            Command::Return => {
+                write!(f, "return")
+            }
+            Command::Call(function_name, n_args) => {
+                write!(f, "call {function_name} {n_args}")
+            }
         }
     }
 }
@@ -150,6 +162,54 @@ fn parse_command<'a>(line: &'a str) -> Result<Command<'a>, String> {
         "and" => Command::ArithmeticLogical(ArithmeticLogical::And),
         "or" => Command::ArithmeticLogical(ArithmeticLogical::Or),
         "not" => Command::ArithmeticLogical(ArithmeticLogical::Not),
+        "label" => {
+            let label = tokens
+                .next()
+                .ok_or_else(|| format!("Error: Expected label for: {line}"))?;
+
+            Command::Label(label)
+        }
+        "goto" => {
+            let label = tokens
+                .next()
+                .ok_or_else(|| format!("Error: Expected label for: {line}"))?;
+
+            Command::Goto(label)
+        }
+        "if-goto" => {
+            let label = tokens
+                .next()
+                .ok_or_else(|| format!("Error: Expected label for: {line}"))?;
+
+            Command::If(label)
+        }
+        "function" => {
+            let function_name = tokens
+                .next()
+                .ok_or_else(|| format!("Error: Expected function_name for: {line}"))?;
+
+            let n_vars = tokens
+                .next()
+                .ok_or_else(|| format!("Error: Expected n_vars for: {line}"))?
+                .parse::<usize>()
+                .map_err(|_| format!("Error: Expected numeric n_vars for: {line}"))?;
+
+            Command::Function(function_name, n_vars)
+        }
+        "call" => {
+            let function_name = tokens
+                .next()
+                .ok_or_else(|| format!("Error: Expected function_name for: {line}"))?;
+
+            let n_args = tokens
+                .next()
+                .ok_or_else(|| format!("Error: Expected n_args for: {line}"))?
+                .parse::<usize>()
+                .map_err(|_| format!("Error: Expected numeric n_args for: {line}"))?;
+
+            Command::Call(function_name, n_args)
+        }
+        "return" => Command::Return,
         _ => return Err(format!("Error: Invalid command: {line}")),
     };
     Ok(command)
